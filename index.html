@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>room</title>
+</head>
+
+<body>
+  <div id="loader-container">
+    <div class="loader-content">
+      <span class="loading-message">loading...</span>
+      <button id="enter-btn" class="enter-button hidden">enter</button>
+    </div>
+  </div>
+  <div id="app"></div>
+
+  <!-- Character Tooltip -->
+  <div id="character-tooltip" class="tooltip hidden">about me</div>
+
+  <!-- About Me Panel -->
+  <div id="about-panel" class="about-panel">
+    <button class="panel-close">&times;</button>
+
+    <div class="about-content">
+      <!-- Section 1: Course Introduction -->
+      <div class="about-section">
+        <div class="section-image">
+          <div class="image-placeholder"></div>
+        </div>
+        <div class="section-text">
+          <h1 class="about-header">hi, i'm jingkai</h1>
+          <p class="about-paragraph">
+            This website was created with love, as part of the POSC103: World Politics course. As a Computer Science
+            student with a passion for design and 3D modeling, I've built this site to reflect the theme of my own room.
+            This is special, as I wanted to illustrate how world politics and global events shape the daily lives of
+            individuals like myself. This highlights the importance of having a deep understanding of current affairs
+            in today's complex, dynamic, and often chaotic world.
+          </p>
+        </div>
+      </div>
+
+      <!-- Divider -->
+      <div class="section-divider"></div>
+
+      <!-- Section 2: About Me -->
+      <div class="about-section">
+        <div class="section-image">
+          <div class="image-placeholder"></div>
+        </div>
+        <div class="section-text">
+          <h2 class="about-subheader">about me</h2>
+          <p class="about-paragraph">
+            My fascination with global affairs stems from my time in New York, where I worked at a tech startup
+            positioned at the intersection of AI and public policy. Being there allowed me to witness firsthand how
+            U.S. policy directly influences the global political landscape. I enrolled in this course to gain deeper
+            insights into these international dynamics and to better understand the forces that move our world.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Map View Overlay -->
+  <div id="map-view" class="map-view">
+    <button class="map-close">&times;</button>
+
+    <!-- Loading State -->
+    <div class="map-loading">
+      <span class="map-loading-message">loading in progress...</span>
+    </div>
+
+    <!-- Map Content (hidden until loaded) -->
+    <div class="map-content hidden">
+      <h1 class="map-title">explore the world</h1>
+
+      <div class="world-map-container">
+        <svg id="world-map" viewBox="0 0 1000 500" xmlns="http://www.w3.org/2000/svg">
+          <!-- North America -->
+          <path id="north-america" class="continent" data-name="North America"
+            d="M 120,60 L 180,50 L 220,70 L 260,60 L 280,80 L 270,120 L 250,150 L 220,180 L 180,200 L 150,220 L 120,200 L 100,160 L 90,120 L 100,80 Z" />
+
+          <!-- South America -->
+          <path id="south-america" class="continent" data-name="South America"
+            d="M 200,250 L 240,240 L 270,260 L 280,300 L 270,350 L 250,400 L 220,430 L 190,420 L 170,380 L 160,330 L 170,280 Z" />
+
+          <!-- Europe -->
+          <path id="europe" class="continent" data-name="Europe"
+            d="M 440,60 L 480,50 L 520,60 L 540,80 L 530,110 L 500,130 L 470,140 L 440,130 L 420,100 L 430,70 Z" />
+
+          <!-- Africa -->
+          <path id="africa" class="continent" data-name="Africa"
+            d="M 440,160 L 480,150 L 520,160 L 540,200 L 550,260 L 540,320 L 510,370 L 470,380 L 430,360 L 410,300 L 420,240 L 430,190 Z" />
+
+          <!-- Asia -->
+          <path id="asia" class="continent" data-name="Asia"
+            d="M 560,50 L 620,40 L 700,50 L 780,70 L 820,100 L 830,150 L 800,200 L 750,230 L 680,240 L 620,230 L 570,200 L 550,150 L 540,100 L 550,60 Z" />
+
+          <!-- Oceania -->
+          <path id="oceania" class="continent" data-name="Oceania" d="M 780,280 L 830,270 L 880,290 L 900,330 L 890,370 L 850,390 L 800,380 L 760,350 L 750,310 Z
+                 M 700,320 L 730,310 L 750,330 L 740,360 L 710,370 L 680,350 L 690,330 Z" />
+        </svg>
+      </div>
+    </div>
+
+    <!-- Continent Detail Popup -->
+    <div id="continent-popup" class="continent-popup">
+      <button class="popup-close">&times;</button>
+      <h2 class="popup-title"></h2>
+      <div class="popup-topics">
+        <div class="topic">
+          <h3>Topic 1</h3>
+          <p>Details about this topic will go here...</p>
+        </div>
+        <div class="topic">
+          <h3>Topic 2</h3>
+          <p>Details about this topic will go here...</p>
+        </div>
+        <div class="topic">
+          <h3>Topic 3</h3>
+          <p>Details about this topic will go here...</p>
+        </div>
+        <div class="topic">
+          <h3>Topic 4</h3>
+          <p>Details about this topic will go here...</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Podcast Popup -->
+  <div id="podcast-popup" class="podcast-popup">
+    <button class="podcast-close">&times;</button>
+    <h2 class="podcast-title">podcast</h2>
+    <p class="podcast-description">Listen to my podcast</p>
+    <a href="#" target="_blank" class="podcast-link">go to podcast</a>
+  </div>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+
+</html>
