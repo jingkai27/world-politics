@@ -16,6 +16,9 @@ let characterModel = null  // Store reference for raycasting
 let characterObject = null
 let mapObject = null  // Store reference for map object
 let micObject = null  // Store reference for mic object
+let trophyObject = null  // Store reference for trophy object
+let bubbleObject = null  // Store reference for bubble object
+let birdiesObject = null  // Store reference for birdies object
 let idleAction = null
 let waveAction = null
 
@@ -39,6 +42,9 @@ const renderer = new THREE.WebGLRenderer({ antialias: true })
 renderer.setSize(window.innerWidth, window.innerHeight)
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
 renderer.shadowMap.enabled = true
+renderer.outputColorSpace = THREE.SRGBColorSpace
+renderer.toneMapping = THREE.ACESFilmicToneMapping
+renderer.toneMappingExposure = 1.0
 document.body.appendChild(renderer.domElement)
 
 // --- Controls ---
@@ -59,9 +65,8 @@ controls.maxAzimuthAngle = Math.PI / 3;  // limit right rotation (e.g. 45 degree
 // Damping for smoother rotation
 controls.dampingFactor = 0.05
 
-// Limit zoom distance
-controls.minDistance = 1    // Can't zoom too close
-controls.maxDistance = 6    // Can't zoom too far out (stay inside room)
+// Disable zoom
+controls.enableZoom = false
 
 // Store initial camera angle for auto-return
 const initialAzimuthalAngle = controls.getAzimuthalAngle()
@@ -83,9 +88,14 @@ const mouse = new THREE.Vector2()
 let isHoveringCharacter = false
 let isHoveringMap = false
 let isHoveringMic = false
+let isHoveringTrophy = false
+let isHoveringBubble = false
+let isHoveringBirdies = false
 let isMapOpen = false
 let isPodcastOpen = false
 let isAboutOpen = false
+let isLeaderboardOpen = false
+let isReflectionOpen = false
 
 const tooltip = document.getElementById('character-tooltip')
 const aboutPanel = document.getElementById('about-panel')
@@ -104,6 +114,14 @@ const popupTitle = document.querySelector('.popup-title')
 const podcastPopup = document.getElementById('podcast-popup')
 const podcastClose = document.querySelector('.podcast-close')
 
+// --- DOM Elements for Leaderboard Popup ---
+const leaderboardPopup = document.getElementById('leaderboard-popup')
+const leaderboardClose = document.querySelector('.leaderboard-close')
+
+// --- DOM Elements for Reflection Popup (shared by bubble & birdies) ---
+const reflectionPopup = document.getElementById('reflection-popup')
+const reflectionClose = document.querySelector('.reflection-close')
+
 // --- Zoom State ---
 let isZoomedIn = false
 let isZooming = false
@@ -116,15 +134,25 @@ const defaultViewSize = 4.5
 const ambientLight = new THREE.AmbientLight(0xffffff, 1)
 scene.add(ambientLight)
 
-const directionalLight = new THREE.DirectionalLight(0xffffff, 0.9)
-directionalLight.position.set(3, 4, -1)
+const directionalLight = new THREE.DirectionalLight(0xffffff, 1)
+directionalLight.position.set(6, 4, -1)
 directionalLight.castShadow = false
 scene.add(directionalLight)
+directionalLight.target.position.set(4, 2, -5)
+scene.add(directionalLight.target)
+
 
 const pointLight = new THREE.PointLight(0xff9000, 1, 100)
 pointLight.position.set(3, 4, -1)
 pointLight.castShadow = true
 scene.add(pointLight)
+
+// --- Light Helpers ---
+const directionalLightHelper = new THREE.DirectionalLightHelper(directionalLight, 1)
+scene.add(directionalLightHelper)
+
+const pointLightHelper = new THREE.PointLightHelper(pointLight, 0.5)
+scene.add(pointLightHelper)
 
 const cubeGeometry = new THREE.BoxGeometry(1, 1, 1)
 const cubeMaterial = new THREE.MeshStandardMaterial({ color: 0xff0000 })
@@ -176,6 +204,30 @@ loader.load(
       console.log('Mic object found')
     } else {
       console.log('Mic object not found - check console for object names')
+    }
+
+    // Find trophy object by name
+    trophyObject = model.getObjectByName('trophy-base001')
+    if (trophyObject) {
+      console.log('Trophy object found')
+    } else {
+      console.log('Trophy object not found - check console for object names')
+    }
+
+    // Find bubble object by name
+    bubbleObject = model.getObjectByName('bubble')
+    if (bubbleObject) {
+      console.log('Bubble object found')
+    } else {
+      console.log('Bubble object not found - check console for object names')
+    }
+
+    // Find birdies object by name
+    birdiesObject = model.getObjectByName('birdies')
+    if (birdiesObject) {
+      console.log('Birdies object found')
+    } else {
+      console.log('Birdies object not found - check console for object names')
     }
 
     characterObject = model.getObjectByName('jingkai')
@@ -341,6 +393,9 @@ window.addEventListener('mousemove', (event) => {
     let hoveringCharacter = false
     let hoveringMap = false
     let hoveringMic = false
+    let hoveringTrophy = false
+    let hoveringBubble = false
+    let hoveringBirdies = false
 
     if (characterModel) {
       const charIntersects = raycaster.intersectObject(characterModel, true)
@@ -359,9 +414,30 @@ window.addEventListener('mousemove', (event) => {
       hoveringMic = micIntersects.length > 0
     }
 
+    // Check trophy hover
+    if (trophyObject) {
+      const trophyIntersects = raycaster.intersectObject(trophyObject, true)
+      hoveringTrophy = trophyIntersects.length > 0
+    }
+
+    // Check bubble hover
+    if (bubbleObject) {
+      const bubbleIntersects = raycaster.intersectObject(bubbleObject, true)
+      hoveringBubble = bubbleIntersects.length > 0
+    }
+
+    // Check birdies hover
+    if (birdiesObject) {
+      const birdiesIntersects = raycaster.intersectObject(birdiesObject, true)
+      hoveringBirdies = birdiesIntersects.length > 0
+    }
+
     isHoveringCharacter = hoveringCharacter
     isHoveringMap = hoveringMap
     isHoveringMic = hoveringMic
+    isHoveringTrophy = hoveringTrophy
+    isHoveringBubble = hoveringBubble
+    isHoveringBirdies = hoveringBirdies
 
     if (hoveringCharacter) {
       if (tooltip) {
@@ -390,6 +466,33 @@ window.addEventListener('mousemove', (event) => {
         tooltip.style.top = (event.clientY - 15) + 'px'
       }
       document.body.style.cursor = 'pointer'
+    } else if (hoveringTrophy) {
+      if (tooltip) {
+        tooltip.textContent = 'film leaderboard'
+        tooltip.classList.remove('hidden')
+        tooltip.classList.add('visible')
+        tooltip.style.left = event.clientX + 'px'
+        tooltip.style.top = (event.clientY - 15) + 'px'
+      }
+      document.body.style.cursor = 'pointer'
+    } else if (hoveringBubble) {
+      if (tooltip) {
+        tooltip.textContent = 'bubble'
+        tooltip.classList.remove('hidden')
+        tooltip.classList.add('visible')
+        tooltip.style.left = event.clientX + 'px'
+        tooltip.style.top = (event.clientY - 15) + 'px'
+      }
+      document.body.style.cursor = 'pointer'
+    } else if (hoveringBirdies) {
+      if (tooltip) {
+        tooltip.textContent = 'birdies'
+        tooltip.classList.remove('hidden')
+        tooltip.classList.add('visible')
+        tooltip.style.left = event.clientX + 'px'
+        tooltip.style.top = (event.clientY - 15) + 'px'
+      }
+      document.body.style.cursor = 'pointer'
     } else {
       if (tooltip) {
         tooltip.classList.remove('visible')
@@ -402,19 +505,31 @@ window.addEventListener('mousemove', (event) => {
 
 // --- Click for panel ---
 window.addEventListener('click', (event) => {
+  const anyPopupOpen = isMapOpen || isPodcastOpen || isAboutOpen || isLeaderboardOpen || isReflectionOpen
+
   // Character click (about me)
-  if (isHoveringCharacter && !isMapOpen && !isPodcastOpen && !isAboutOpen) {
+  if (isHoveringCharacter && !anyPopupOpen) {
     openAboutPopup()
   }
 
   // Map click
-  if (isHoveringMap && !isMapOpen && !isPodcastOpen && !isAboutOpen) {
+  if (isHoveringMap && !anyPopupOpen) {
     openMapView()
   }
 
   // Mic click (podcast)
-  if (isHoveringMic && !isMapOpen && !isPodcastOpen && !isAboutOpen) {
+  if (isHoveringMic && !anyPopupOpen) {
     openPodcastPopup()
+  }
+
+  // Trophy click (film leaderboard)
+  if (isHoveringTrophy && !anyPopupOpen) {
+    openLeaderboardPopup()
+  }
+
+  // Bubble or Birdies click (same popup)
+  if ((isHoveringBubble || isHoveringBirdies) && !anyPopupOpen) {
+    openReflectionPopup()
   }
 })
 
@@ -547,11 +662,133 @@ if (podcastClose) {
   podcastClose.addEventListener('click', closePodcastPopup)
 }
 
+// --- Leaderboard Popup Functions ---
+function openLeaderboardPopup() {
+  isLeaderboardOpen = true
+  // Hide tooltip
+  if (tooltip) {
+    tooltip.classList.remove('visible')
+    tooltip.classList.add('hidden')
+  }
+  document.body.style.cursor = 'default'
+
+  // Show leaderboard popup
+  if (leaderboardPopup) {
+    leaderboardPopup.classList.add('visible')
+  }
+
+  // Reset review panel to default state
+  resetLeaderboardReview()
+}
+
+function closeLeaderboardPopup() {
+  isLeaderboardOpen = false
+  if (leaderboardPopup) {
+    leaderboardPopup.classList.remove('visible')
+  }
+}
+
+// Handle film selection for review display
+function selectFilm(filmId) {
+  const films = {
+    1: {
+      title: 'Film Title 1',
+      review: 'This is a placeholder review for the first film. The cinematography was exceptional and the story kept me engaged throughout. A must-watch for anyone who appreciates thoughtful storytelling.'
+    },
+    2: {
+      title: 'Film Title 2',
+      review: 'A masterpiece of storytelling. The director brings a unique vision to this adaptation that resonates deeply. The performances are captivating and the visuals stunning.'
+    },
+    3: {
+      title: 'Film Title 3',
+      review: 'An incredible journey through time and space. The visual effects complement the narrative beautifully. This film left a lasting impression and deserves all the recognition it receives.'
+    }
+  }
+
+  const film = films[filmId]
+  if (film) {
+    const reviewTitle = document.querySelector('.review-title')
+    const reviewText = document.querySelector('.review-text')
+    const reviewPlaceholder = document.querySelector('.review-placeholder')
+
+    if (reviewTitle) reviewTitle.textContent = film.title
+    if (reviewText) reviewText.textContent = film.review
+    if (reviewPlaceholder) reviewPlaceholder.classList.add('hidden')
+    if (reviewTitle) reviewTitle.classList.remove('hidden')
+    if (reviewText) reviewText.classList.remove('hidden')
+
+    // Update active state on podium items
+    document.querySelectorAll('.podium-item').forEach(item => {
+      item.classList.remove('active')
+    })
+    document.querySelector(`[data-film-id="${filmId}"]`)?.classList.add('active')
+  }
+}
+
+function resetLeaderboardReview() {
+  const reviewTitle = document.querySelector('.review-title')
+  const reviewText = document.querySelector('.review-text')
+  const reviewPlaceholder = document.querySelector('.review-placeholder')
+
+  if (reviewTitle) reviewTitle.classList.add('hidden')
+  if (reviewText) reviewText.classList.add('hidden')
+  if (reviewPlaceholder) reviewPlaceholder.classList.remove('hidden')
+
+  document.querySelectorAll('.podium-item').forEach(item => {
+    item.classList.remove('active')
+  })
+}
+
+// --- Leaderboard Close Button ---
+if (leaderboardClose) {
+  leaderboardClose.addEventListener('click', closeLeaderboardPopup)
+}
+
+// --- Reflection Popup Functions (shared by bubble & birdies) ---
+function openReflectionPopup() {
+  isReflectionOpen = true
+  if (tooltip) {
+    tooltip.classList.remove('visible')
+    tooltip.classList.add('hidden')
+  }
+  document.body.style.cursor = 'default'
+  if (reflectionPopup) {
+    reflectionPopup.classList.add('visible')
+  }
+}
+
+function closeReflectionPopup() {
+  isReflectionOpen = false
+  if (reflectionPopup) {
+    reflectionPopup.classList.remove('visible')
+  }
+}
+
+if (reflectionClose) {
+  reflectionClose.addEventListener('click', closeReflectionPopup)
+}
+
+// --- Podium Item Click Handlers ---
+document.querySelectorAll('.podium-item').forEach(item => {
+  item.addEventListener('click', () => {
+    const filmId = item.dataset.filmId
+    selectFilm(parseInt(filmId))
+  })
+})
+
 // --- Escape Key Handler ---
 window.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') {
-    // Close podcast popup first if open
-    if (isPodcastOpen) {
+    // Close reflection popup if open
+    if (isReflectionOpen) {
+      closeReflectionPopup()
+    }
+    // Close leaderboard popup first if open
+    else if (isLeaderboardOpen) {
+      closeLeaderboardPopup()
+    }
+    // Close podcast popup if open
+    else if (isPodcastOpen) {
       closePodcastPopup()
     }
     // Close continent popup if open
