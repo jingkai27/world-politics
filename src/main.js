@@ -22,6 +22,7 @@ let birdiesObject = null  // Store reference for birdies object
 let tvObject = null  // Store reference for television object
 let idleAction = null
 let waveAction = null
+let characterHoverTimer = null
 
 // --- Camera Setup (Isometric) ---
 const aspect = window.innerWidth / window.innerHeight
@@ -264,9 +265,11 @@ loader.load(
         // Log available animations and play the first one
         console.log('Available animations:', gltf.animations.map(clip => clip.name))
         const clip = gltf.animations[4]
-        const action = mixer.clipAction(clip)
-        action.play()
-        console.log('Playing animation:', clip.name)
+        waveAction = mixer.clipAction(clip)
+        waveAction.setLoop(THREE.LoopOnce)
+        waveAction.clampWhenFinished = true
+        // Don't auto-play — defer to enter button
+        console.log('Prepared animation:', clip.name)
       }
     } else {
       console.log('Character object not found')
@@ -343,7 +346,7 @@ loader.load(
   (gltf) => {
     if (gltf.animations && gltf.animations.length > 0 && mixer) {
       idleAction = mixer.clipAction(gltf.animations[0])
-      idleAction.play()  // Start with idle animation
+      // Don't auto-play — character stays static until wave is triggered
     }
   },
   undefined,
@@ -395,6 +398,13 @@ if (enterBtn) {
         loaderContainer.style.display = 'none'
       }
     }, 800)
+
+    // Play wave animation 1s after entering
+    setTimeout(() => {
+      if (waveAction) {
+        waveAction.reset().play()
+      }
+    }, 100)
   })
 }
 
@@ -454,6 +464,23 @@ window.addEventListener('mousemove', (event) => {
     if (tvObject) {
       const tvIntersects = raycaster.intersectObject(tvObject, true)
       hoveringTV = tvIntersects.length > 0
+    }
+
+    // Character hover timer: replay wave after 3s of hovering
+    if (hoveringCharacter && !isHoveringCharacter) {
+      // Just started hovering — start 3s timer
+      characterHoverTimer = setTimeout(() => {
+        if (waveAction) {
+          waveAction.reset().play()
+        }
+        characterHoverTimer = null
+      }, 500)
+    } else if (!hoveringCharacter && isHoveringCharacter) {
+      // Stopped hovering — clear timer
+      if (characterHoverTimer) {
+        clearTimeout(characterHoverTimer)
+        characterHoverTimer = null
+      }
     }
 
     isHoveringCharacter = hoveringCharacter
