@@ -970,6 +970,27 @@ canvas.visible {
   width: 100%;
 }
 
+/* Image Section */
+.editorial-image-section {
+  text-align: center;
+  margin: 2rem 0;
+}
+
+.editorial-feature-image {
+  max-width: 40%;
+  height: auto;
+  border-radius: 2px;
+}
+
+.editorial-image-caption {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 0.95rem;
+  color: rgba(155, 139, 122, 0.8);
+  font-style: italic;
+  margin-top: 0.75rem;
+  letter-spacing: 0.03em;
+}
+
 /* Entry Grid */
 .editorial-grid {
   display: flex;
@@ -1002,7 +1023,6 @@ canvas.visible {
 /* Images — alternating shapes */
 .entry-image {
   flex: 0 0 45%;
-  aspect-ratio: 3/4;
   overflow: hidden;
   background: rgba(155, 139, 122, 0.08);
 }
@@ -1014,12 +1034,15 @@ canvas.visible {
   display: block;
 }
 
-.editorial-entry:nth-child(odd) .entry-image {
-  border-radius: 80px;
+.entry-image-dual {
+  display: flex;
+  gap: 0.5rem;
 }
 
-.editorial-entry:nth-child(even) .entry-image {
-  border-radius: 0;
+.entry-image-dual img {
+  width: calc(50% - 0.25rem);
+  height: auto;
+  object-fit: cover;
 }
 
 /* Text */
