@@ -1082,6 +1082,24 @@ canvas.visible {
   margin: 0;
 }
 
+.entry-body ul {
+  margin: 0.8rem 0 0 0;
+  padding-left: 1.4rem;
+  list-style: disc;
+}
+
+.entry-body li {
+  color: #9B8B7A;
+  font-family: 'Playfair Display', serif;
+  font-size: 0.95rem;
+  line-height: 1.8;
+  margin-bottom: 0.6rem;
+}
+
+.entry-body li::marker {
+  color: rgba(155, 139, 122, 0.5);
+}
+
 /* Footer */
 .editorial-footer {
   text-align: center;
@@ -1180,4 +1198,191 @@ canvas.visible {
   .editorial-footer-title {
     font-size: 1.8rem;
   }
+}
+
+/* ============================================
+   TV POPUP — REUSES EDITORIAL LAYOUT
+   ============================================ */
+
+.tv-popup {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #FAF6ED;
+  z-index: 10004;
+  overflow-y: auto;
+  opacity: 0;
+  visibility: hidden;
+  transform: scale(0.95);
+  transition: opacity 0.5s ease, visibility 0.5s ease, transform 0.5s ease;
+}
+
+.tv-popup.visible {
+  opacity: 1;
+  visibility: visible;
+  transform: scale(1);
+}
+
+.tv-close {
+  position: fixed;
+  top: 24px;
+  right: 32px;
+  background: none;
+  border: none;
+  color: #9B8B7A;
+  font-size: 36px;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+  z-index: 10;
+  line-height: 1;
+}
+
+.tv-close:hover {
+  transform: scale(1.1);
+}
+
+/* ============================================
+   HELP BUTTON & CHEATSHEET OVERLAY
+   ============================================ */
+
+#help-btn {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: #FAF6ED;
+  border: 1.5px solid #9B8B7A;
+  color: #9B8B7A;
+  font-family: 'Crispy Cream', cursive;
+  font-size: 1.4rem;
+  cursor: pointer;
+  z-index: 9998;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(155, 139, 122, 0.2);
+}
+
+#help-btn:hover {
+  background: #9B8B7A;
+  color: #FAF6ED;
+}
+
+#cheatsheet-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.3);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+#cheatsheet-overlay.visible {
+  opacity: 1;
+  visibility: visible;
+}
+
+.cheatsheet-scroll {
+  position: relative;
+  width: 90%;
+  max-width: 380px;
+  background: #FAF6ED;
+  border: 2px solid #9B8B7A;
+  border-radius: 16px;
+  padding: 2.5rem 2rem;
+  box-shadow: 0 12px 48px rgba(155, 139, 122, 0.3);
+  transform: scale(0.9);
+  transition: transform 0.3s ease;
+}
+
+#cheatsheet-overlay.visible .cheatsheet-scroll {
+  transform: scale(1);
+}
+
+/* Decorative scroll edges */
+.cheatsheet-scroll::before,
+.cheatsheet-scroll::after {
+  content: '';
+  display: block;
+  height: 1px;
+  background: rgba(155, 139, 122, 0.3);
+  margin: 0 -0.5rem;
+}
+
+.cheatsheet-scroll::before {
+  margin-bottom: 1.5rem;
+}
+
+.cheatsheet-scroll::after {
+  margin-top: 1.5rem;
+}
+
+.cheatsheet-close {
+  position: absolute;
+  top: 12px;
+  right: 16px;
+  background: none;
+  border: none;
+  color: #9B8B7A;
+  font-size: 28px;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+  line-height: 1;
+}
+
+.cheatsheet-close:hover {
+  transform: scale(1.1);
+}
+
+.cheatsheet-title {
+  color: #9B8B7A;
+  font-family: 'Crispy Cream', cursive;
+  font-size: 1.8rem;
+  font-weight: 400;
+  text-align: center;
+  margin: 0 0 1.2rem 0;
+}
+
+.cheatsheet-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.cheatsheet-list li {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  color: #9B8B7A;
+  font-family: 'Playfair Display', serif;
+  font-size: 0.95rem;
+}
+
+.cheatsheet-item {
+  font-weight: 600;
+}
+
+.cheatsheet-arrow {
+  font-family: 'Playfair Display', serif;
+  opacity: 0.5;
+}
+
+.cheatsheet-dest {
+  font-style: italic;
+  opacity: 0.8;
 }

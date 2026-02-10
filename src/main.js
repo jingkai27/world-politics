@@ -19,6 +19,7 @@ let micObject = null  // Store reference for mic object
 let trophyObject = null  // Store reference for trophy object
 let bubbleObject = null  // Store reference for bubble object
 let birdiesObject = null  // Store reference for birdies object
+let tvObject = null  // Store reference for television object
 let idleAction = null
 let waveAction = null
 
@@ -91,11 +92,13 @@ let isHoveringMic = false
 let isHoveringTrophy = false
 let isHoveringBubble = false
 let isHoveringBirdies = false
+let isHoveringTV = false
 let isMapOpen = false
 let isPodcastOpen = false
 let isAboutOpen = false
 let isLeaderboardOpen = false
 let isReflectionOpen = false
+let isTVOpen = false
 
 const tooltip = document.getElementById('character-tooltip')
 const aboutPanel = document.getElementById('about-panel')
@@ -121,6 +124,10 @@ const leaderboardClose = document.querySelector('.leaderboard-close')
 // --- DOM Elements for Reflection Popup (shared by bubble & birdies) ---
 const reflectionPopup = document.getElementById('reflection-popup')
 const reflectionClose = document.querySelector('.reflection-close')
+
+// --- DOM Elements for TV Popup ---
+const tvPopup = document.getElementById('tv-popup')
+const tvClose = document.querySelector('.tv-close')
 
 // --- Zoom State ---
 let isZoomedIn = false
@@ -230,6 +237,14 @@ loader.load(
       console.log('Birdies object not found - check console for object names')
     }
 
+    // Find television object by name
+    tvObject = model.getObjectByName('television')
+    if (tvObject) {
+      console.log('Television object found')
+    } else {
+      console.log('Television object not found - check console for object names')
+    }
+
     characterObject = model.getObjectByName('jingkai')
     if (characterObject) {
       console.log('Character object found')
@@ -248,7 +263,7 @@ loader.load(
 
         // Log available animations and play the first one
         console.log('Available animations:', gltf.animations.map(clip => clip.name))
-        const clip = gltf.animations[0]
+        const clip = gltf.animations[4]
         const action = mixer.clipAction(clip)
         action.play()
         console.log('Playing animation:', clip.name)
@@ -261,6 +276,7 @@ loader.load(
     scene.add(model)
 
     // Show Enter Button
+    document.querySelector('.loading-message').textContent = "let's go!"
     if (enterBtn) {
       enterBtn.classList.remove('hidden')
       enterBtn.classList.add('visible')
@@ -277,6 +293,7 @@ loader.load(
     console.log('Please place your "room.glb" file in "public/models/"')
 
     // Show Enter button even on error (will show placeholder cube)
+    document.querySelector('.loading-message').textContent = "let's go!"
     if (enterBtn) {
       enterBtn.classList.remove('hidden')
       enterBtn.classList.add('visible')
@@ -432,12 +449,20 @@ window.addEventListener('mousemove', (event) => {
       hoveringBirdies = birdiesIntersects.length > 0
     }
 
+    // Check television hover
+    let hoveringTV = false
+    if (tvObject) {
+      const tvIntersects = raycaster.intersectObject(tvObject, true)
+      hoveringTV = tvIntersects.length > 0
+    }
+
     isHoveringCharacter = hoveringCharacter
     isHoveringMap = hoveringMap
     isHoveringMic = hoveringMic
     isHoveringTrophy = hoveringTrophy
     isHoveringBubble = hoveringBubble
     isHoveringBirdies = hoveringBirdies
+    isHoveringTV = hoveringTV
 
     if (hoveringCharacter) {
       if (tooltip) {
@@ -493,6 +518,15 @@ window.addEventListener('mousemove', (event) => {
         tooltip.style.top = (event.clientY - 15) + 'px'
       }
       document.body.style.cursor = 'pointer'
+    } else if (hoveringTV) {
+      if (tooltip) {
+        tooltip.textContent = 'television'
+        tooltip.classList.remove('hidden')
+        tooltip.classList.add('visible')
+        tooltip.style.left = event.clientX + 'px'
+        tooltip.style.top = (event.clientY - 15) + 'px'
+      }
+      document.body.style.cursor = 'pointer'
     } else {
       if (tooltip) {
         tooltip.classList.remove('visible')
@@ -505,7 +539,7 @@ window.addEventListener('mousemove', (event) => {
 
 // --- Click for panel ---
 window.addEventListener('click', (event) => {
-  const anyPopupOpen = isMapOpen || isPodcastOpen || isAboutOpen || isLeaderboardOpen || isReflectionOpen
+  const anyPopupOpen = isMapOpen || isPodcastOpen || isAboutOpen || isLeaderboardOpen || isReflectionOpen || isTVOpen
 
   // Character click (about me)
   if (isHoveringCharacter && !anyPopupOpen) {
@@ -530,6 +564,11 @@ window.addEventListener('click', (event) => {
   // Bubble or Birdies click (same popup)
   if ((isHoveringBubble || isHoveringBirdies) && !anyPopupOpen) {
     openReflectionPopup()
+  }
+
+  // Television click
+  if (isHoveringTV && !anyPopupOpen) {
+    openTVPopup()
   }
 })
 
@@ -768,6 +807,30 @@ if (reflectionClose) {
   reflectionClose.addEventListener('click', closeReflectionPopup)
 }
 
+// --- TV Popup Functions ---
+function openTVPopup() {
+  isTVOpen = true
+  if (tooltip) {
+    tooltip.classList.remove('visible')
+    tooltip.classList.add('hidden')
+  }
+  document.body.style.cursor = 'default'
+  if (tvPopup) {
+    tvPopup.classList.add('visible')
+  }
+}
+
+function closeTVPopup() {
+  isTVOpen = false
+  if (tvPopup) {
+    tvPopup.classList.remove('visible')
+  }
+}
+
+if (tvClose) {
+  tvClose.addEventListener('click', closeTVPopup)
+}
+
 // --- Podium Item Click Handlers ---
 document.querySelectorAll('.podium-item').forEach(item => {
   item.addEventListener('click', () => {
@@ -779,8 +842,12 @@ document.querySelectorAll('.podium-item').forEach(item => {
 // --- Escape Key Handler ---
 window.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') {
+    // Close TV popup if open
+    if (isTVOpen) {
+      closeTVPopup()
+    }
     // Close reflection popup if open
-    if (isReflectionOpen) {
+    else if (isReflectionOpen) {
       closeReflectionPopup()
     }
     // Close leaderboard popup first if open
@@ -800,9 +867,44 @@ window.addEventListener('keydown', (e) => {
       closeMapView()
     }
     // Then close about panel if open
+    else if (isCheatsheetOpen) {
+      closeCheatsheet()
+    }
     else if (isAboutOpen) {
       closeAboutPopup()
     }
+  }
+})
+
+// --- Cheatsheet Help Overlay ---
+const helpBtn = document.getElementById('help-btn')
+const cheatsheetOverlay = document.getElementById('cheatsheet-overlay')
+const cheatsheetClose = document.querySelector('.cheatsheet-close')
+let isCheatsheetOpen = false
+
+function openCheatsheet() {
+  cheatsheetOverlay.classList.add('visible')
+  isCheatsheetOpen = true
+}
+
+function closeCheatsheet() {
+  cheatsheetOverlay.classList.remove('visible')
+  isCheatsheetOpen = false
+}
+
+helpBtn.addEventListener('click', () => {
+  if (isCheatsheetOpen) {
+    closeCheatsheet()
+  } else {
+    openCheatsheet()
+  }
+})
+
+cheatsheetClose.addEventListener('click', closeCheatsheet)
+
+cheatsheetOverlay.addEventListener('click', (e) => {
+  if (e.target === cheatsheetOverlay) {
+    closeCheatsheet()
   }
 })
 
