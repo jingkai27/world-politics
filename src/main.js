@@ -6,6 +6,7 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 // --- DOM Elements for Loader ---
 const loaderContainer = document.getElementById('loader-container')
 const enterBtn = document.getElementById('enter-btn')
+const welcomeOverlay = document.getElementById('welcome-overlay')
 
 // Show motivation text during loading (staggered entrance)
 setTimeout(() => {
@@ -409,12 +410,35 @@ if (enterBtn) {
       }
     }, 800)
 
+    // Show welcome overlay after loader is fully gone
+    setTimeout(() => {
+      if (welcomeOverlay) {
+        welcomeOverlay.classList.add('visible')
+      }
+    }, 900)
+
+    // Auto-dismiss after 5 seconds
+    setTimeout(() => {
+      if (welcomeOverlay) {
+        welcomeOverlay.classList.add('fade-out')
+        setTimeout(() => { welcomeOverlay.style.display = 'none' }, 600)
+      }
+    }, 5900)
+
     // Play wave animation 1s after entering
     setTimeout(() => {
       if (waveAction) {
         waveAction.reset().play()
       }
     }, 100)
+  })
+}
+
+// Click anywhere to dismiss welcome overlay
+if (welcomeOverlay) {
+  welcomeOverlay.addEventListener('click', () => {
+    welcomeOverlay.classList.add('fade-out')
+    setTimeout(() => { welcomeOverlay.style.display = 'none' }, 600)
   })
 }
 

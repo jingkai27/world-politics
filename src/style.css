@@ -1482,3 +1482,113 @@ canvas.visible {
   font-style: italic;
   opacity: 0.8;
 }
+
+#welcome-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 5000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: auto;
+  opacity: 0;
+  transition: opacity 0.8s ease;
+}
+
+#welcome-overlay.visible {
+  opacity: 1;
+}
+
+#welcome-overlay.fade-out {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.welcome-card {
+  background: rgba(250, 246, 237, 0.88);
+  border: 1px solid rgba(155, 139, 122, 0.3);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-radius: 2px;
+  padding: 2.2rem 3rem;
+  text-align: center;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.9rem;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+  transform: translateY(10px);
+  transition: transform 0.8s ease;
+}
+
+#welcome-overlay.visible .welcome-card {
+  transform: translateY(0);
+}
+
+.welcome-diamond {
+  color: rgba(155, 139, 122, 0.55);
+  font-size: 0.6rem;
+  letter-spacing: 0.4em;
+}
+
+.welcome-title {
+  font-family: 'Crispy Cream', cursive;
+  color: #9B8B7A;
+  font-size: 2rem;
+  font-weight: 400;
+  margin: 0;
+  letter-spacing: 0.08em;
+}
+
+.welcome-divider {
+  width: 40px;
+  height: 1px;
+  background: rgba(155, 139, 122, 0.3);
+}
+
+.welcome-hints {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.welcome-hint-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-family: 'Playfair Display', serif;
+  color: #9B8B7A;
+  font-size: 0.88rem;
+  letter-spacing: 0.04em;
+}
+
+.welcome-hint-icon {
+  font-style: italic;
+  opacity: 0.85;
+  min-width: 42px;
+  text-align: right;
+}
+
+.welcome-arrow {
+  opacity: 0.4;
+}
+
+.welcome-hint-label {
+  opacity: 0.85;
+  min-width: 120px;
+  text-align: left;
+}
+
+.welcome-dismiss {
+  font-family: 'Playfair Display', serif;
+  color: #9B8B7A;
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  animation: welcome-pulse 2.5s ease-in-out infinite;
+}
+
+@keyframes welcome-pulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.75; }
+}
