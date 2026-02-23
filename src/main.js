@@ -140,8 +140,14 @@ const tvClose = document.querySelector('.tv-close')
 // --- Zoom State ---
 let isZoomedIn = false
 let isZooming = false
-let targetViewSize = 4.5
-let currentViewSize = 4.5
+function getDefaultViewSize() {
+  if (window.innerWidth < 768) {
+    return window.innerWidth < window.innerHeight ? 7.0 : 5.5 // portrait / landscape
+  }
+  return 4.5
+}
+let targetViewSize = getDefaultViewSize()
+let currentViewSize = getDefaultViewSize()
 const zoomedInViewSize = 2.5
 const defaultViewSize = 4.5
 
@@ -392,6 +398,31 @@ window.addEventListener('resize', () => {
   renderer.setSize(window.innerWidth, window.innerHeight)
 })
 
+// --- Touch support: update mouse vector on tap so click handler fires on mobile ---
+window.addEventListener('touchstart', (event) => {
+  const touch = event.touches[0]
+  mouse.x = (touch.clientX / window.innerWidth) * 2 - 1
+  mouse.y = -(touch.clientY / window.innerHeight) * 2 + 1
+}, { passive: true })
+
+// --- Orientation change: recalculate view size and reset camera ---
+window.addEventListener('orientationchange', () => {
+  setTimeout(() => {
+    const defaultSize = getDefaultViewSize()
+    if (!isZoomedIn) {
+      targetViewSize = defaultSize
+      currentViewSize = defaultSize
+    }
+    const newAspect = window.innerWidth / window.innerHeight
+    camera.left = -currentViewSize * newAspect
+    camera.right = currentViewSize * newAspect
+    camera.top = currentViewSize
+    camera.bottom = -currentViewSize
+    camera.updateProjectionMatrix()
+    renderer.setSize(window.innerWidth, window.innerHeight)
+  }, 300)
+})
+
 // --- Enter Button Click Handler ---
 if (enterBtn) {
   enterBtn.addEventListener('click', () => {
@@ -439,6 +470,21 @@ if (welcomeOverlay) {
   welcomeOverlay.addEventListener('click', () => {
     welcomeOverlay.classList.add('fade-out')
     setTimeout(() => { welcomeOverlay.style.display = 'none' }, 600)
+  })
+}
+
+// --- Tooltip helper ---
+function showTooltip(text, x, y) {
+  tooltip.textContent = text
+  tooltip.classList.remove('hidden')
+  tooltip.classList.add('visible')
+  tooltip.style.left = x + 'px'
+  tooltip.style.top = (y - 15) + 'px'
+  requestAnimationFrame(() => {
+    const cx = Math.min(x, window.innerWidth - tooltip.offsetWidth - 8)
+    const cy = Math.max(8, y - 15)
+    tooltip.style.left = cx + 'px'
+    tooltip.style.top = cy + 'px'
   })
 }
 
@@ -526,67 +572,25 @@ window.addEventListener('mousemove', (event) => {
     isHoveringTV = hoveringTV
 
     if (hoveringCharacter) {
-      if (tooltip) {
-        tooltip.textContent = 'about me'
-        tooltip.classList.remove('hidden')
-        tooltip.classList.add('visible')
-        tooltip.style.left = event.clientX + 'px'
-        tooltip.style.top = (event.clientY - 15) + 'px'
-      }
+      if (tooltip) showTooltip('about me', event.clientX, event.clientY)
       document.body.style.cursor = 'pointer'
     } else if (hoveringMap) {
-      if (tooltip) {
-        tooltip.textContent = 'map'
-        tooltip.classList.remove('hidden')
-        tooltip.classList.add('visible')
-        tooltip.style.left = event.clientX + 'px'
-        tooltip.style.top = (event.clientY - 15) + 'px'
-      }
+      if (tooltip) showTooltip('map', event.clientX, event.clientY)
       document.body.style.cursor = 'pointer'
     } else if (hoveringMic) {
-      if (tooltip) {
-        tooltip.textContent = 'podcast'
-        tooltip.classList.remove('hidden')
-        tooltip.classList.add('visible')
-        tooltip.style.left = event.clientX + 'px'
-        tooltip.style.top = (event.clientY - 15) + 'px'
-      }
+      if (tooltip) showTooltip('podcast', event.clientX, event.clientY)
       document.body.style.cursor = 'pointer'
     } else if (hoveringTrophy) {
-      if (tooltip) {
-        tooltip.textContent = 'film leaderboard'
-        tooltip.classList.remove('hidden')
-        tooltip.classList.add('visible')
-        tooltip.style.left = event.clientX + 'px'
-        tooltip.style.top = (event.clientY - 15) + 'px'
-      }
+      if (tooltip) showTooltip('film leaderboard', event.clientX, event.clientY)
       document.body.style.cursor = 'pointer'
     } else if (hoveringBubble) {
-      if (tooltip) {
-        tooltip.textContent = 'bubble'
-        tooltip.classList.remove('hidden')
-        tooltip.classList.add('visible')
-        tooltip.style.left = event.clientX + 'px'
-        tooltip.style.top = (event.clientY - 15) + 'px'
-      }
+      if (tooltip) showTooltip('bubble', event.clientX, event.clientY)
       document.body.style.cursor = 'pointer'
     } else if (hoveringBirdies) {
-      if (tooltip) {
-        tooltip.textContent = 'birdies'
-        tooltip.classList.remove('hidden')
-        tooltip.classList.add('visible')
-        tooltip.style.left = event.clientX + 'px'
-        tooltip.style.top = (event.clientY - 15) + 'px'
-      }
+      if (tooltip) showTooltip('birdies', event.clientX, event.clientY)
       document.body.style.cursor = 'pointer'
     } else if (hoveringTV) {
-      if (tooltip) {
-        tooltip.textContent = 'television'
-        tooltip.classList.remove('hidden')
-        tooltip.classList.add('visible')
-        tooltip.style.left = event.clientX + 'px'
-        tooltip.style.top = (event.clientY - 15) + 'px'
-      }
+      if (tooltip) showTooltip('television', event.clientX, event.clientY)
       document.body.style.cursor = 'pointer'
     } else {
       if (tooltip) {
