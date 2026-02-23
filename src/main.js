@@ -7,6 +7,12 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 const loaderContainer = document.getElementById('loader-container')
 const enterBtn = document.getElementById('enter-btn')
 
+// Show motivation text during loading (staggered entrance)
+setTimeout(() => {
+  const loaderMotivation = document.querySelector('.loader-motivation')
+  if (loaderMotivation) loaderMotivation.classList.add('visible')
+}, 400)
+
 // --- Scene Setup ---
 const scene = new THREE.Scene()
 scene.background = new THREE.Color(0x202020)
@@ -284,6 +290,8 @@ loader.load(
       enterBtn.classList.remove('hidden')
       enterBtn.classList.add('visible')
     }
+    const loaderMotivation = document.querySelector('.loader-motivation')
+    if (loaderMotivation) loaderMotivation.classList.add('visible')
   },
   (xhr) => {
     if (xhr.total > 0) {
@@ -301,6 +309,8 @@ loader.load(
       enterBtn.classList.remove('hidden')
       enterBtn.classList.add('visible')
     }
+    const loaderMotivation = document.querySelector('.loader-motivation')
+    if (loaderMotivation) loaderMotivation.classList.add('visible')
   }
 )
 
@@ -758,16 +768,16 @@ function closeLeaderboardPopup() {
 function selectFilm(filmId) {
   const films = {
     1: {
-      title: 'Film Title 1',
-      review: 'This is a placeholder review for the first film. The cinematography was exceptional and the story kept me engaged throughout. A must-watch for anyone who appreciates thoughtful storytelling.'
+      title: 'The Diplomat',
+      review: "The Diplomat concisely captured the essence and challenges of diplomacy. Hal's speech, Kate's conflicts and Dennison's dilemnas articulated the challenges, consequences and trade-offs that diplomats face on a daily. It was the closest portrayal and experience I've had to experiencing policy negotiations and it is no wonder that I have completed all 3 seasons of The Diplomat."
     },
     2: {
-      title: 'Film Title 2',
-      review: 'A masterpiece of storytelling. The director brings a unique vision to this adaptation that resonates deeply. The performances are captivating and the visuals stunning.'
+      title: 'Joint Security Area',
+      review: 'Probably the most heart-wrenching film thus far, I couldnt help but sympatise with the characters. It truly reminded me that humans are never really at war with each other, but may be forced into conflict and differences to fulfill the will of their leaders. Park Chan-wook masterfully blurs the line between enemy and friend, leaving a lasting impression.'
     },
     3: {
-      title: 'Film Title 3',
-      review: 'An incredible journey through time and space. The visual effects complement the narrative beautifully. This film left a lasting impression and deserves all the recognition it receives.'
+      title: 'The Interview',
+      review: 'I never knew that I could laugh my heart out at a film about North Korea. This bold satirical comedy was surprisingly relatable with music and media that resonated with the class, yet bringing across a very clear and strong message about the stronghold that the media has over global politics. Will finish it soon!'
     }
   }
 

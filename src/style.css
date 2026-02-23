@@ -114,6 +114,55 @@ canvas.visible {
   opacity: 1;
 }
 
+/* Loader layout */
+.loader-content {
+  max-width: 480px;
+  text-align: center;
+}
+
+/* Motivation block — always in DOM, transitions in on .visible */
+.loader-motivation {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.8rem;
+  opacity: 0;
+  transform: translateY(16px);
+  pointer-events: none;
+  transition: opacity 0.8s ease 0.2s, transform 0.8s ease 0.2s;
+}
+
+.loader-motivation.visible {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.loader-diamond {
+  color: rgba(155, 139, 122, 0.5);
+  font-size: 0.7rem;
+  letter-spacing: 0.3em;
+}
+
+.loader-tagline {
+  color: #9B8B7A;
+  font-family: 'Crispy Cream', cursive;
+  font-size: 1.4rem;
+  font-weight: 400;
+  letter-spacing: 0.08em;
+  margin: 0;
+}
+
+.loader-description {
+  color: rgba(155, 139, 122, 0.8);
+  font-family: 'Playfair Display', serif;
+  font-size: 0.95rem;
+  font-style: italic;
+  line-height: 1.8;
+  max-width: 380px;
+  margin: 0;
+}
+
 /* ============================================
    TOOLTIP STYLES
    ============================================ */
@@ -652,6 +701,20 @@ canvas.visible {
   transform: translate(-50%, -50%) scale(1);
 }
 
+/* Entrance stagger animation */
+@keyframes podiumEntrance {
+  from { opacity: 0; transform: translateY(24px) scale(0.92); }
+  to   { opacity: 1; transform: translateY(0)    scale(1);    }
+}
+
+.leaderboard-popup.visible .podium-item {
+  animation: podiumEntrance 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+/* DOM order: 2nd (child 1), 1st (child 2), 3rd (child 3) */
+.leaderboard-popup.visible .podium-item:nth-child(1) { animation-delay: 0.08s; }
+.leaderboard-popup.visible .podium-item:nth-child(2) { animation-delay: 0.00s; }
+.leaderboard-popup.visible .podium-item:nth-child(3) { animation-delay: 0.14s; }
+
 .leaderboard-close {
   position: absolute;
   top: 12px;
@@ -687,7 +750,7 @@ canvas.visible {
 
 /* Left Column: Podium */
 .film-podium {
-  flex: 0 0 220px;
+  flex: 0 0 270px;
   display: flex;
   align-items: flex-end;
   justify-content: center;
@@ -700,29 +763,57 @@ canvas.visible {
   flex-direction: column;
   align-items: center;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.podium-item:hover {
+  transform: translateY(-6px);
+}
+
+.podium-item.active {
+  transform: translateY(-6px);
 }
 
 .podium-item .film-name {
   color: #9B8B7A;
   font-family: 'Playfair Display', serif;
-  font-size: 0.8rem;
+  font-size: 0.65rem;
   line-height: 1.2;
   text-align: center;
   margin-bottom: 0.5rem;
-  max-width: 70px;
+  max-width: 80px;
   word-wrap: break-word;
 }
 
+.podium-poster {
+  width: 80px;
+  height: 113px;
+  object-fit: cover;
+  border-radius: 6px;
+  margin-bottom: 0.4rem;
+  border: 1.5px solid rgba(155, 139, 122, 0.4);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.podium-item:hover .podium-poster {
+  transform: scale(1.08);
+  box-shadow: 0 4px 12px rgba(155, 139, 122, 0.4);
+}
+
+.podium-item.active .podium-poster {
+  border-color: #9B8B7A;
+  box-shadow: 0 4px 16px rgba(155, 139, 122, 0.5);
+}
+
 .podium-block {
-  width: 60px;
+  width: 82px;
   display: flex;
   align-items: flex-start;
   justify-content: center;
   padding-top: 0.8rem;
   background: rgba(155, 139, 122, 0.15);
   border: 2px solid transparent;
-  border-radius: 8px 8px 0 0;
+  border-radius: 10px 10px 0 0;
   transition: all 0.2s ease;
 }
 
@@ -738,7 +829,8 @@ canvas.visible {
 /* Podium heights */
 .podium-item.first .podium-block {
   height: 120px;
-  background: rgba(155, 139, 122, 0.25);
+  background: rgba(155, 139, 122, 0.35);
+  border-color: rgba(191, 160, 96, 0.4);
 }
 
 .podium-item.second .podium-block {
@@ -762,6 +854,10 @@ canvas.visible {
   font-size: 1rem;
 }
 
+.podium-item.first  .film-rank { background: #BFA060; }
+.podium-item.second .film-rank { background: #9B9B9B; }
+.podium-item.third  .film-rank { background: #A0785A; }
+
 /* Right Column: Review Panel */
 .review-panel {
   flex: 1;
@@ -774,7 +870,7 @@ canvas.visible {
 .review-placeholder {
   color: rgba(155, 139, 122, 0.6);
   font-family: 'Playfair Display', serif;
-  font-size: 1rem;
+  font-size: 0.85rem;
   font-style: italic;
   text-align: center;
   margin-top: 100px;
@@ -783,7 +879,7 @@ canvas.visible {
 .review-title {
   color: #9B8B7A;
   font-family: 'Crispy Cream', cursive;
-  font-size: 1.5rem;
+  font-size: 1.25rem;
   font-weight: 400;
   margin: 0 0 1rem 0;
 }
@@ -797,7 +893,7 @@ canvas.visible {
 .review-text {
   color: #9B8B7A;
   font-family: 'Playfair Display', serif;
-  font-size: 0.95rem;
+  font-size: 0.85rem;
   line-height: 1.8;
   margin: 0;
 }

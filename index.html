@@ -12,6 +12,18 @@
   <div id="loader-container">
     <div class="loader-content">
       <span class="loading-message">loading...</span>
+
+      <!-- Motivation block (starts invisible, transitions in after load) -->
+      <div class="loader-motivation">
+        <span class="loader-diamond">&#9670;</span>
+        <p class="loader-tagline">a room, a world</p>
+        <p class="loader-description">
+          Crafted for POSC103: World Politics — this interactive room bridges the personal
+          and the political, exploring how global events shape the lives of individuals.
+          Each object is a story. Each click, a reflection.
+        </p>
+      </div>
+
       <button id="enter-btn" class="enter-button hidden">enter</button>
     </div>
   </div>
@@ -151,19 +163,22 @@
       <!-- Left: Podium -->
       <div class="film-podium">
         <div class="podium-item second" data-film-id="2">
-          <span class="film-name">Film Title 2</span>
+          <img src="/images/jsa-poster1.png" alt="Joint Security Area" class="podium-poster" />
+          <span class="film-name">Joint Security Area</span>
           <div class="podium-block">
             <span class="film-rank">2</span>
           </div>
         </div>
         <div class="podium-item first" data-film-id="1">
-          <span class="film-name">Film Title 1</span>
+          <img src="/images/poster-2.png" alt="The Diplomat" class="podium-poster" />
+          <span class="film-name">The Diplomat</span>
           <div class="podium-block">
             <span class="film-rank">1</span>
           </div>
         </div>
         <div class="podium-item third" data-film-id="3">
-          <span class="film-name">Film Title 3</span>
+          <img src="/images/interview-poster1.png" alt="The Interview" class="podium-poster" />
+          <span class="film-name">The Interview</span>
           <div class="podium-block">
             <span class="film-rank">3</span>
           </div>
