@@ -163,6 +163,78 @@ canvas.visible {
   margin: 0;
 }
 
+/* Progress Bar */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes shimmer {
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(300%); }
+}
+
+.progress-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.7rem;
+  animation: fadeInUp 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+}
+
+.progress-wrapper.hidden {
+  display: none;
+}
+
+#progress-bar-container {
+  width: 320px;
+  height: 5px;
+  background: rgba(155, 139, 122, 0.15);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+#progress-bar-fill {
+  height: 100%;
+  width: 0%;
+  background: #9B8B7A;
+  border-radius: 2px;
+  position: relative;
+  overflow: hidden;
+  transition: width 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+#progress-bar-fill::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(250, 246, 237, 0.55) 50%,
+    transparent 100%
+  );
+  animation: shimmer 1.8s ease-in-out infinite;
+}
+
+.progress-text {
+  color: rgba(155, 139, 122, 0.6);
+  font-family: 'Kai', sans-serif;
+  font-size: 0.85rem;
+  letter-spacing: 0.08em;
+  max-width: 320px;
+  text-align: center;
+  transition: opacity 0.3s ease;
+}
+
+.reload-message {
+  color: rgba(155, 139, 122, 0.7);
+  font-family: 'Playfair Display', serif;
+  font-size: 1rem;
+  font-style: italic;
+  margin: 0;
+}
+
 /* ============================================
    TOOLTIP STYLES
    ============================================ */
@@ -993,20 +1065,19 @@ canvas.visible {
   overflow-y: auto;
   opacity: 0;
   visibility: hidden;
-  transform: scale(0.95);
-  transition: opacity 0.5s ease, visibility 0.5s ease, transform 0.5s ease;
+  transition: opacity 0.5s ease, visibility 0.5s ease;
 }
 
 .reflection-popup.visible {
   opacity: 1;
   visibility: visible;
-  transform: scale(1);
 }
 
 .reflection-close {
-  position: fixed;
+  position: sticky;
   top: 24px;
-  right: 32px;
+  float: right;
+  margin-right: 32px;
   background: none;
   border: none;
   color: #9B8B7A;
@@ -1311,20 +1382,19 @@ canvas.visible {
   overflow-y: auto;
   opacity: 0;
   visibility: hidden;
-  transform: scale(0.95);
-  transition: opacity 0.5s ease, visibility 0.5s ease, transform 0.5s ease;
+  transition: opacity 0.5s ease, visibility 0.5s ease;
 }
 
 .tv-popup.visible {
   opacity: 1;
   visibility: visible;
-  transform: scale(1);
 }
 
 .tv-close {
-  position: fixed;
+  position: sticky;
   top: 24px;
-  right: 32px;
+  float: right;
+  margin-right: 32px;
   background: none;
   border: none;
   color: #9B8B7A;
@@ -1367,6 +1437,94 @@ canvas.visible {
 #help-btn:hover {
   background: #9B8B7A;
   color: #FAF6ED;
+}
+
+/* Nav Bubble */
+#nav-btn {
+  position: fixed;
+  bottom: calc(1.5rem + env(safe-area-inset-bottom));
+  left: calc(1.5rem + env(safe-area-inset-left));
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: #FAF6ED;
+  border: 1.5px solid #9B8B7A;
+  color: #9B8B7A;
+  font-size: 1.1rem;
+  cursor: pointer;
+  z-index: 9998;
+  box-shadow: 0 4px 12px rgba(155, 139, 122, 0.2);
+  transition: all 0.3s ease;
+}
+
+#nav-btn.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+#nav-btn.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+#nav-btn:hover,
+#nav-btn.open {
+  background: #9B8B7A;
+  color: #FAF6ED;
+}
+
+/* Nav Sidebar (floats above the bubble) */
+#nav-sidebar {
+  position: fixed;
+  bottom: calc(4.8rem + env(safe-area-inset-bottom));
+  left: calc(1.5rem + env(safe-area-inset-left));
+  background: #FAF6ED;
+  border: 1.5px solid #9B8B7A;
+  border-radius: 12px;
+  padding: 0.5rem 0;
+  z-index: 9997;
+  box-shadow: 0 8px 24px rgba(155, 139, 122, 0.2);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(8px);
+  transition: opacity 0.25s ease, visibility 0.25s ease, transform 0.25s ease;
+  pointer-events: none;
+}
+
+#nav-sidebar.visible {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.nav-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.nav-item {
+  background: none;
+  border: none;
+  text-align: left;
+  padding: 0.5rem 1.1rem;
+  font-family: 'Playfair Display', serif;
+  font-size: 0.85rem;
+  color: rgba(155, 139, 122, 0.7);
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: color 0.2s ease, background 0.2s ease;
+  white-space: nowrap;
+}
+
+.nav-item:hover {
+  color: #9B8B7A;
+  background: rgba(155, 139, 122, 0.08);
+}
+
+.nav-item.active {
+  color: #9B8B7A;
+  font-weight: 600;
 }
 
 #cheatsheet-overlay {
@@ -1703,7 +1861,7 @@ canvas.visible {
   .tv-close,
   .reflection-close {
     top: 16px;
-    right: 16px;
+    margin-right: 16px;
     font-size: 28px;
   }
 }

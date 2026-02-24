@@ -13,6 +13,13 @@
     <div class="loader-content">
       <span class="loading-message">loading...</span>
 
+      <div class="progress-wrapper">
+        <div id="progress-bar-container">
+          <div id="progress-bar-fill"></div>
+        </div>
+        <span id="progress-text" class="progress-text">0%</span>
+      </div>
+
       <!-- Motivation block (starts invisible, transitions in after load) -->
       <div class="loader-motivation">
         <span class="loader-diamond">&#9670;</span>
@@ -420,6 +427,20 @@
         <h2 class="editorial-footer-title">fin</h2>
       </footer>
     </div>
+  </div>
+
+  <!-- Nav Bubble + Sidebar -->
+  <button id="nav-btn" class="hidden">&#9776;</button>
+
+  <div id="nav-sidebar">
+    <nav class="nav-list">
+      <button class="nav-item" data-panel="about">about me</button>
+      <button class="nav-item" data-panel="map">map</button>
+      <button class="nav-item" data-panel="podcast">podcast</button>
+      <button class="nav-item" data-panel="leaderboard">film leaderboard</button>
+      <button class="nav-item" data-panel="reflection">sovereignty &amp; diplomacy</button>
+      <button class="nav-item" data-panel="tv">security &amp; borders</button>
+    </nav>
   </div>
 
   <!-- Help Button -->

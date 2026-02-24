@@ -203,26 +203,25 @@ loader.load(
     cube.visible = false
 
     // List all objects by name
-    console.log('--- All objects in model ---')
-    model.traverse((child) => {
-      if (child.name) {
-        console.log(child.name, child.type)
-      }
-    })
+    // console.log('--- All objects in model ---')
+    // model.traverse((child) => {
+    //   if (child.name) {
+    //     console.log(child.name, child.type)
+    //   }
+    // })
     console.log('----------------------------')
 
     // Find map object by name
     mapObject = model.getObjectByName('map')
     if (mapObject) {
-      console.log('Map object found')
+
     } else {
-      console.log('Map object not found')
+      console.log('Map object not found - check console for object names')
     }
 
     // Find mic object by name
     micObject = model.getObjectByName('macbook')
     if (micObject) {
-      console.log('Mic object found')
     } else {
       console.log('Mic object not found - check console for object names')
     }
@@ -230,7 +229,6 @@ loader.load(
     // Find trophy object by name
     trophyObject = model.getObjectByName('trophy-base001')
     if (trophyObject) {
-      console.log('Trophy object found')
     } else {
       console.log('Trophy object not found - check console for object names')
     }
@@ -238,7 +236,6 @@ loader.load(
     // Find bubble object by name
     bubbleObject = model.getObjectByName('bubble')
     if (bubbleObject) {
-      console.log('Bubble object found')
     } else {
       console.log('Bubble object not found - check console for object names')
     }
@@ -246,7 +243,6 @@ loader.load(
     // Find birdies object by name
     birdiesObject = model.getObjectByName('birdies')
     if (birdiesObject) {
-      console.log('Birdies object found')
     } else {
       console.log('Birdies object not found - check console for object names')
     }
@@ -254,14 +250,12 @@ loader.load(
     // Find television object by name
     tvObject = model.getObjectByName('television')
     if (tvObject) {
-      console.log('Television object found')
     } else {
       console.log('Television object not found - check console for object names')
     }
 
     characterObject = model.getObjectByName('jingkai')
     if (characterObject) {
-      console.log('Character object found')
       characterModel = characterObject  // Store reference for raycasting
 
       characterObject.traverse((child) => {
@@ -276,13 +270,13 @@ loader.load(
         mixer = new THREE.AnimationMixer(characterObject)
 
         // Log available animations and play the first one
-        console.log('Available animations:', gltf.animations.map(clip => clip.name))
+        // console.log('Available animations:', gltf.animations.map(clip => clip.name))
         const clip = gltf.animations[4]
         waveAction = mixer.clipAction(clip)
         waveAction.setLoop(THREE.LoopOnce)
         waveAction.clampWhenFinished = true
         // Don't auto-play — defer to enter button
-        console.log('Prepared animation:', clip.name)
+        // console.log('Prepared animation:', clip.name)
       }
     } else {
       console.log('Character object not found')
@@ -290,6 +284,10 @@ loader.load(
 
 
     scene.add(model)
+
+    // Hide progress bar
+    const progressWrapper = document.querySelector('.progress-wrapper')
+    if (progressWrapper) progressWrapper.classList.add('hidden')
 
     // Show Enter Button
     document.querySelector('.loading-message').textContent = "let's go!"
@@ -301,23 +299,30 @@ loader.load(
     if (loaderMotivation) loaderMotivation.classList.add('visible')
   },
   (xhr) => {
+    const fill = document.getElementById('progress-bar-fill')
+    const progressText = document.getElementById('progress-text')
     if (xhr.total > 0) {
-      const percent = (xhr.loaded / xhr.total * 100)
-      console.log(percent + '% loaded')
+      const percent = (xhr.loaded / xhr.total) * 100
+      if (percent > 100) {
+        if (fill) fill.style.width = '100%'
+        if (progressText) progressText.textContent = 'still loading, give it a bit more time'
+      } else {
+        if (fill) fill.style.width = percent + '%'
+        if (progressText) progressText.textContent = Math.floor(percent) + '%'
+      }
     }
   },
   (error) => {
     console.warn('An error happened loading the model:', error)
-    console.log('Please place your "room.glb" file in "public/models/"')
-
-    // Show Enter button even on error (will show placeholder cube)
-    document.querySelector('.loading-message').textContent = "let's go!"
-    if (enterBtn) {
-      enterBtn.classList.remove('hidden')
-      enterBtn.classList.add('visible')
-    }
-    const loaderMotivation = document.querySelector('.loader-motivation')
-    if (loaderMotivation) loaderMotivation.classList.add('visible')
+    // Hide progress bar
+    const progressWrapper = document.querySelector('.progress-wrapper')
+    if (progressWrapper) progressWrapper.classList.add('hidden')
+    // Show reload message — do NOT show enter button
+    document.querySelector('.loading-message').textContent = 'I am sorry....'
+    const reloadMsg = document.createElement('p')
+    reloadMsg.className = 'reload-message'
+    reloadMsg.textContent = 'Something went wrong, please reload the page.'
+    document.querySelector('.loader-content').appendChild(reloadMsg)
   }
 )
 
@@ -433,6 +438,9 @@ if (enterBtn) {
 
     // Show canvas
     renderer.domElement.classList.add('visible')
+
+    const navBtn = document.getElementById('nav-btn')
+    if (navBtn) { navBtn.classList.remove('hidden'); navBtn.classList.add('visible') }
 
     // Remove loader from DOM after transition
     setTimeout(() => {
@@ -659,6 +667,7 @@ function openAboutPopup() {
   if (aboutPanel) {
     aboutPanel.classList.add('visible')
   }
+  updateNavActiveStates()
 }
 
 function closeAboutPopup() {
@@ -666,6 +675,7 @@ function closeAboutPopup() {
   if (aboutPanel) {
     aboutPanel.classList.remove('visible')
   }
+  updateNavActiveStates()
 }
 
 // --- Map View Functions ---
@@ -688,6 +698,7 @@ function openMapView() {
     if (mapLoading) mapLoading.style.display = 'none'
     if (mapContent) mapContent.classList.remove('hidden')
   }, 1500)
+  updateNavActiveStates()
 }
 
 function closeMapView() {
@@ -705,6 +716,7 @@ function closeMapView() {
     if (mapLoading) mapLoading.style.display = 'flex'
     if (mapContent) mapContent.classList.add('hidden')
   }, 500)
+  updateNavActiveStates()
 }
 
 // --- Map Close Button ---
@@ -752,6 +764,7 @@ function openPodcastPopup() {
   if (podcastPopup) {
     podcastPopup.classList.add('visible')
   }
+  updateNavActiveStates()
 }
 
 function closePodcastPopup() {
@@ -759,6 +772,7 @@ function closePodcastPopup() {
   if (podcastPopup) {
     podcastPopup.classList.remove('visible')
   }
+  updateNavActiveStates()
 }
 
 // --- Podcast Close Button ---
@@ -783,6 +797,7 @@ function openLeaderboardPopup() {
 
   // Reset review panel to default state
   resetLeaderboardReview()
+  updateNavActiveStates()
 }
 
 function closeLeaderboardPopup() {
@@ -790,6 +805,7 @@ function closeLeaderboardPopup() {
   if (leaderboardPopup) {
     leaderboardPopup.classList.remove('visible')
   }
+  updateNavActiveStates()
 }
 
 // Handle film selection for review display
@@ -859,6 +875,7 @@ function openReflectionPopup() {
   if (reflectionPopup) {
     reflectionPopup.classList.add('visible')
   }
+  updateNavActiveStates()
 }
 
 function closeReflectionPopup() {
@@ -866,6 +883,7 @@ function closeReflectionPopup() {
   if (reflectionPopup) {
     reflectionPopup.classList.remove('visible')
   }
+  updateNavActiveStates()
 }
 
 if (reflectionClose) {
@@ -883,6 +901,7 @@ function openTVPopup() {
   if (tvPopup) {
     tvPopup.classList.add('visible')
   }
+  updateNavActiveStates()
 }
 
 function closeTVPopup() {
@@ -890,6 +909,7 @@ function closeTVPopup() {
   if (tvPopup) {
     tvPopup.classList.remove('visible')
   }
+  updateNavActiveStates()
 }
 
 if (tvClose) {
@@ -939,6 +959,53 @@ window.addEventListener('keydown', (e) => {
       closeAboutPopup()
     }
   }
+})
+
+// --- Nav Sidebar ---
+const navBtn = document.getElementById('nav-btn')
+const navSidebar = document.getElementById('nav-sidebar')
+let isNavOpen = false
+
+function updateNavActiveStates() {
+  const states = {
+    about: isAboutOpen, map: isMapOpen, podcast: isPodcastOpen,
+    leaderboard: isLeaderboardOpen, reflection: isReflectionOpen, tv: isTVOpen
+  }
+  document.querySelectorAll('.nav-item').forEach((item) => {
+    item.classList.toggle('active', !!states[item.dataset.panel])
+  })
+}
+
+function openNav() {
+  isNavOpen = true
+  updateNavActiveStates()
+  navSidebar.classList.add('visible')
+  navBtn.classList.add('open')
+}
+
+function closeNav() {
+  isNavOpen = false
+  navSidebar.classList.remove('visible')
+  navBtn.classList.remove('open')
+}
+
+navBtn.addEventListener('click', () => { isNavOpen ? closeNav() : openNav() })
+
+document.addEventListener('click', (e) => {
+  if (isNavOpen && !navBtn.contains(e.target) && !navSidebar.contains(e.target)) closeNav()
+})
+
+document.querySelectorAll('.nav-item').forEach((item) => {
+  item.addEventListener('click', () => {
+    closeNav()
+    const panel = item.dataset.panel
+    if (panel === 'about')       isAboutOpen       ? closeAboutPopup()       : openAboutPopup()
+    if (panel === 'map')         isMapOpen         ? closeMapView()          : openMapView()
+    if (panel === 'podcast')     isPodcastOpen     ? closePodcastPopup()     : openPodcastPopup()
+    if (panel === 'leaderboard') isLeaderboardOpen ? closeLeaderboardPopup() : openLeaderboardPopup()
+    if (panel === 'reflection')  isReflectionOpen  ? closeReflectionPopup()  : openReflectionPopup()
+    if (panel === 'tv')          isTVOpen          ? closeTVPopup()          : openTVPopup()
+  })
 })
 
 // --- Cheatsheet Help Overlay ---
