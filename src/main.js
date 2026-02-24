@@ -439,6 +439,9 @@ if (enterBtn) {
     // Show canvas
     renderer.domElement.classList.add('visible')
 
+    const navBtn = document.getElementById('nav-btn')
+    if (navBtn) { navBtn.classList.remove('hidden'); navBtn.classList.add('visible') }
+
     // Remove loader from DOM after transition
     setTimeout(() => {
       if (loaderContainer) {
@@ -664,6 +667,7 @@ function openAboutPopup() {
   if (aboutPanel) {
     aboutPanel.classList.add('visible')
   }
+  updateNavActiveStates()
 }
 
 function closeAboutPopup() {
@@ -671,6 +675,7 @@ function closeAboutPopup() {
   if (aboutPanel) {
     aboutPanel.classList.remove('visible')
   }
+  updateNavActiveStates()
 }
 
 // --- Map View Functions ---
@@ -693,6 +698,7 @@ function openMapView() {
     if (mapLoading) mapLoading.style.display = 'none'
     if (mapContent) mapContent.classList.remove('hidden')
   }, 1500)
+  updateNavActiveStates()
 }
 
 function closeMapView() {
@@ -710,6 +716,7 @@ function closeMapView() {
     if (mapLoading) mapLoading.style.display = 'flex'
     if (mapContent) mapContent.classList.add('hidden')
   }, 500)
+  updateNavActiveStates()
 }
 
 // --- Map Close Button ---
@@ -757,6 +764,7 @@ function openPodcastPopup() {
   if (podcastPopup) {
     podcastPopup.classList.add('visible')
   }
+  updateNavActiveStates()
 }
 
 function closePodcastPopup() {
@@ -764,6 +772,7 @@ function closePodcastPopup() {
   if (podcastPopup) {
     podcastPopup.classList.remove('visible')
   }
+  updateNavActiveStates()
 }
 
 // --- Podcast Close Button ---
@@ -788,6 +797,7 @@ function openLeaderboardPopup() {
 
   // Reset review panel to default state
   resetLeaderboardReview()
+  updateNavActiveStates()
 }
 
 function closeLeaderboardPopup() {
@@ -795,6 +805,7 @@ function closeLeaderboardPopup() {
   if (leaderboardPopup) {
     leaderboardPopup.classList.remove('visible')
   }
+  updateNavActiveStates()
 }
 
 // Handle film selection for review display
@@ -864,6 +875,7 @@ function openReflectionPopup() {
   if (reflectionPopup) {
     reflectionPopup.classList.add('visible')
   }
+  updateNavActiveStates()
 }
 
 function closeReflectionPopup() {
@@ -871,6 +883,7 @@ function closeReflectionPopup() {
   if (reflectionPopup) {
     reflectionPopup.classList.remove('visible')
   }
+  updateNavActiveStates()
 }
 
 if (reflectionClose) {
@@ -888,6 +901,7 @@ function openTVPopup() {
   if (tvPopup) {
     tvPopup.classList.add('visible')
   }
+  updateNavActiveStates()
 }
 
 function closeTVPopup() {
@@ -895,6 +909,7 @@ function closeTVPopup() {
   if (tvPopup) {
     tvPopup.classList.remove('visible')
   }
+  updateNavActiveStates()
 }
 
 if (tvClose) {
@@ -944,6 +959,53 @@ window.addEventListener('keydown', (e) => {
       closeAboutPopup()
     }
   }
+})
+
+// --- Nav Sidebar ---
+const navBtn = document.getElementById('nav-btn')
+const navSidebar = document.getElementById('nav-sidebar')
+let isNavOpen = false
+
+function updateNavActiveStates() {
+  const states = {
+    about: isAboutOpen, map: isMapOpen, podcast: isPodcastOpen,
+    leaderboard: isLeaderboardOpen, reflection: isReflectionOpen, tv: isTVOpen
+  }
+  document.querySelectorAll('.nav-item').forEach((item) => {
+    item.classList.toggle('active', !!states[item.dataset.panel])
+  })
+}
+
+function openNav() {
+  isNavOpen = true
+  updateNavActiveStates()
+  navSidebar.classList.add('visible')
+  navBtn.classList.add('open')
+}
+
+function closeNav() {
+  isNavOpen = false
+  navSidebar.classList.remove('visible')
+  navBtn.classList.remove('open')
+}
+
+navBtn.addEventListener('click', () => { isNavOpen ? closeNav() : openNav() })
+
+document.addEventListener('click', (e) => {
+  if (isNavOpen && !navBtn.contains(e.target) && !navSidebar.contains(e.target)) closeNav()
+})
+
+document.querySelectorAll('.nav-item').forEach((item) => {
+  item.addEventListener('click', () => {
+    closeNav()
+    const panel = item.dataset.panel
+    if (panel === 'about')       isAboutOpen       ? closeAboutPopup()       : openAboutPopup()
+    if (panel === 'map')         isMapOpen         ? closeMapView()          : openMapView()
+    if (panel === 'podcast')     isPodcastOpen     ? closePodcastPopup()     : openPodcastPopup()
+    if (panel === 'leaderboard') isLeaderboardOpen ? closeLeaderboardPopup() : openLeaderboardPopup()
+    if (panel === 'reflection')  isReflectionOpen  ? closeReflectionPopup()  : openReflectionPopup()
+    if (panel === 'tv')          isTVOpen          ? closeTVPopup()          : openTVPopup()
+  })
 })
 
 // --- Cheatsheet Help Overlay ---
