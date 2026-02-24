@@ -169,11 +169,11 @@ pointLight.castShadow = true
 scene.add(pointLight)
 
 // --- Light Helpers ---
-// const directionalLightHelper = new THREE.DirectionalLightHelper(directionalLight, 1)
-// scene.add(directionalLightHelper)
+const directionalLightHelper = new THREE.DirectionalLightHelper(directionalLight, 1)
+scene.add(directionalLightHelper)
 
-// const pointLightHelper = new THREE.PointLightHelper(pointLight, 0.5)
-// scene.add(pointLightHelper)
+const pointLightHelper = new THREE.PointLightHelper(pointLight, 0.5)
+scene.add(pointLightHelper)
 
 const cubeGeometry = new THREE.BoxGeometry(1, 1, 1)
 const cubeMaterial = new THREE.MeshStandardMaterial({ color: 0xff0000 })
